@@ -47,7 +47,7 @@ DDWSnippets {
 	}
 
 	*at { |name|
-		snips.at(name.asString)
+		^snips.at(name.asString)
 	}
 
 	*insert { |doc, key|
