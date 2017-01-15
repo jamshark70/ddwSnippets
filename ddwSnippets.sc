@@ -1,5 +1,5 @@
 DDWSnippets {
-	classvar <snips, action, states, <state;
+	classvar <snips, action;
 
 	*initClass {
 		snips = Dictionary.new;
