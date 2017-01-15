@@ -1,5 +1,5 @@
 DDWSnippets {
-	classvar <snips, action, <>path, <>autoEnable = true;
+	classvar <snips, action, <>path, <>autoEnable = true, <>verbose = true;
 
 	*initClass {
 		snips = Dictionary.new;
@@ -26,9 +26,9 @@ DDWSnippets {
 			temp.isKindOf(FunctionList) and: temp.array.includes(action)
 		}) }) {
 			Document.globalKeyDownAction = temp.addFunc(action);
-			"DDWSnippets successfully enabled".postln;
+			if(verbose) { "DDWSnippets successfully enabled".postln };
 		} {
-			"DDWSnippets already enabled".warn;
+			if(verbose) { "DDWSnippets already enabled".warn };
 		}
 	}
 
@@ -141,7 +141,8 @@ DDWSnippets {
 			protect {
 				file << "/*** DDWSnippets config ***/\n\n";
 				if(fullConfig) {
-					file << "DDWSnippets.autoEnable = " << autoEnable << ";\n\n";
+					file << "DDWSnippets.autoEnable = " << autoEnable << ";\n";
+					file << "DDWSnippets.verbose = " << verbose << ";\n\n";
 				};
 				snips.keysValuesDo { |key, str|
 					file << "DDWSnippets.put(" <<< key << ", " <<< str << ");\n\n";
