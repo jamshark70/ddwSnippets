@@ -23,7 +23,7 @@ DDWSnippets {
 	*enable {
 		var temp = Document.globalKeyDownAction;
 		if(temp.isNil or: { not(temp === action or: {
-			temp.isKindOf(FunctionList) and: temp.array.includes(action)
+			temp.isKindOf(FunctionList) and: { temp.array.includes(action) }
 		}) }) {
 			Document.globalKeyDownAction = temp.addFunc(action);
 			if(verbose) { "DDWSnippets successfully enabled".postln };
