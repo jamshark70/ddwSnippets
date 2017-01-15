@@ -1,0 +1,145 @@
+TITLE:: DDWSnippets
+summary:: Rudimentary snippets facility for ScIDE, implemented in sclang.
+categories:: Frontends
+related:: Classes/Document, Classes/ScIDE
+
+DESCRIPTION::
+DDWSnippets stores "snippets" -- brief, reusable code templates that can be inserted into active documents using short names. It can also save the snippet repository to disk, and load it automatically at sclang startup.
+
+It uses the link::Classes/Document:: interface to insert a snippet into the active code document. It is tested only with ScIDE document integration. It may be possible to support other Document classes, but this will depend on testing from other users.
+
+Subsection:: Usage
+
+All methods are class methods.
+
+Add snippets using link::Classes/DDWSnippets#*put::. Both the snippets themselves and their names should be strings. Within the snippet text, use teletype::##:: to denote where to position the cursor after insertion. A pair of teletype::##:: delimiters indicates a range of text that will be selected after insertion.
+
+code::
+(
+DDWSnippets.put("synthdef", "SynthDef(\\##name##, {
+
+}).add;");
+)
+::
+
+To use a snippet in a document, press ctrl-` (backtick). Begin typing the snippet name in the pop-up window; the list will be filtered automatically. You may also use the up and down arrow keys. Press Return to insert it, or Esc to cancel.
+
+Note::Currently, the DDWSnippets hotkey is not configurable, and it does not use Cmd on Mac.::
+
+Note::Currently, DDWSnippets does not check whether a selection window is already open. This case is not tested. It's strongly advised to cancel before pressing the hotkey again.::
+
+Note::If you want to resave your snippets to disk automatically at the end of the session, add the following into your link::Reference/StartupFile:::
+
+code::
+ShutDown.add { DDWSnippets.write };
+::
+::
+
+
+CLASSMETHODS::
+
+Subsection:: Snippet management
+METHOD:: put
+Add a snippet to the repository.
+
+ARGUMENT:: name
+A string, uniquely identifying the snippet.
+
+ARGUMENT:: value
+The snippet, as a string. It may contain teletype::##:: delimiters; see above for an example.
+
+
+METHOD:: at
+Retrieve a snippet from the repository, by name.
+
+ARGUMENT:: name
+A string, uniquely identifying the snippet.
+
+returns:: The snippet, as a string, or code::nil:: if not found.
+
+METHOD:: removeAt
+Delete a snippet, by name, from the repository.
+
+ARGUMENT:: name
+A string, uniquely identifying the snippet.
+
+METHOD:: snips
+Direct access to the link::Classes/Dictionary:: containing the repository.
+
+returns:: A Dictionary.
+
+
+Subsection:: Configuration
+
+METHOD:: enable
+Activates DDWSnippets by adding the ctrl-` hotkey into link::Classes/Document#*globalKeyDownAction::. If link::Classes/DDWSnippets#*autoEnable:: is true, this method is called one second after class library initialization.
+
+Note::If another globalKeyDownAction is already installed, the globalKeyDownAction will become a link::Classes/FunctionList::.::
+
+METHOD:: disable
+Deactivates DDWSnippets by removing the ctrl-` hotkey from link::Classes/Document#*globalKeyDownAction::.
+
+
+METHOD:: autoEnable
+Boolean. If true, enable the hotkey automatically at startup. You may set this in your link::Reference/StartupFile::. Its value is also saved by default into the DDWSnippets configuration file. 
+
+The default is code::true::.
+
+returns:: A Boolean.
+
+METHOD:: verbose
+Boolean. If true, print status messages in the post window. You may set this in your link::Reference/StartupFile::. Its value is also saved by default into the DDWSnippets configuration file. 
+
+The default is code::true::.
+
+returns:: A Boolean.
+
+METHOD:: path
+A string, specifying the default DDWSnippets configuration file location. If not explicitly set in your startup file, a default location in your code::Platform#*userConfigDir:: is used. There is no need to set it explicitly.
+
+returns:: A String.
+
+METHOD:: write
+Write the snippet repository to disk.
+
+ARGUMENT:: filePath
+If specified, this string overrides code::DDWSnippets#*path::. Optional.
+
+ARGUMENT:: fullConfig
+A Boolean. If true, link::Classes/DDWSnippets#*autoEnable:: and link::Classes/DDWSnippets#*verbose:: will be included in the saved file. If false, they are omitted. The default is code::true::.
+
+returns:: A Boolean.
+
+METHOD:: read
+Read the snippet repository from disk. code::DDWSnippets.snips:: is not emptied; new items will be added, but old ones will not be removed.
+
+ARGUMENT:: filePath
+If specified, this string overrides code::DDWSnippets#*path::. Optional.
+
+ARGUMENT:: warn
+A Boolean. If true, a warning will be posted if the file could not be found. During startup, this is called with code::warn: false::.
+
+returns:: A Boolean.
+
+Subsection:: Programmatic usage
+
+METHOD:: makeGui
+Opens the snippet-selection window.
+
+ARGUMENT:: doc
+An instance of link::Classes/Document:: or link::Classes/TextView::. If not specified, the default is code::Document.current::. After selection, the snippet will be inserted into this view's contents.
+
+
+METHOD:: insert
+Insert a snippet, by name, into the current location of the specified document or view.
+
+ARGUMENT:: doc
+An instance of link::Classes/Document:: or link::Classes/TextView::. Mandatory argument: No default is provided.
+
+ARGUMENT:: key
+The snippet name, as a string.
+
+returns:: A Boolean: true if the snippet name was found, false otherwise.
+
+
+private:: initClass, new

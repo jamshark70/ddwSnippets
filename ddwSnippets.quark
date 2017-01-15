@@ -1,0 +1,9 @@
+(
+	name:		"ddwSnippets",
+	path:		"ddwSnippets",
+	summary:		"Rudimentary snippets facility for ScIDE, implemented in sclang.",
+	author:		"James Harkins",
+	version:		1.0,
+//	helpdoc:		"",
+	url:			"http://www.dewdrop-world.net/sc3"
+)
