@@ -60,9 +60,11 @@ DDWSnippets {
 		};
 		if(snip.notNil) {
 			i = snip.find("##");
-			if(i.notNil) { snip = delete.(snip, i) };
-			j = snip.find("##", i+1);
-			if(j.notNil) { snip = delete.(snip, j) };
+			if(i.notNil) {
+				snip = delete.(snip, i);
+				j = snip.find("##", i+1);
+				if(j.notNil) { snip = delete.(snip, j) };
+			};
 			pos = doc.selectionStart;
 			doc.selectedString_(snip);
 			if(i.notNil) {
@@ -94,7 +96,7 @@ DDWSnippets {
 			Rect.aboutPoint(Window.screenBounds.center, 120, 90));
 		window.layout = VLayout(
 			textField = TextField().fixedHeight_(20),
-			listView = ListView().canFocus_(false)
+			listView = ListView()
 		);
 
 		textField.action_({ |view|
@@ -133,7 +135,20 @@ DDWSnippets {
 
 		keys = allKeys;
 		current = keys[0];
-		listView.items_(keys).value_(0);
+		listView.items_(keys).value_(0)
+		.action_({ |view|
+			current = keys[view.value];
+			textField.string = current;
+		})
+		.keyDownAction_({ |view, char, modifiers|
+			if(char.ascii == 27 and: { modifiers bitAnd: 0x001E0000 == 0 }) {
+				window.close;
+			};
+		})
+		.enterKeyAction_({ |view|
+			this.insert(doc, current);
+			window.close;
+		});
 
 		textField.focus(true);
 		window.front;
