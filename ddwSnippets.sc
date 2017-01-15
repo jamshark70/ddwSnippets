@@ -42,22 +42,32 @@ DDWSnippets {
 	}
 
 	*insert { |doc, key|
-		var snip = snips[key], temp, i, pos;
+		var snip = snips[key], temp, i, j, pos,
+		delete = { |str, i|
+			var temp;
+			if(i > 0) { temp = str[ .. i-1] } { temp = String.new };
+			if(i < (str.size - 2)) { temp = temp ++ str[i+2..] };
+			temp
+		};
 		if(snip.notNil) {
 			i = snip.find("##");
-			if(i.notNil) {
-				temp = snip;
-				if(i > 0) { snip = temp[ .. i-1] } { snip = String.new };
-				if(i < (temp.size - 2)) { snip = snip ++ temp[i+2..] };
-			};
+			if(i.notNil) { snip = delete.(snip, i) };
+			j = snip.find("##", i+1);
+			if(j.notNil) { snip = delete.(snip, j) };
 			pos = doc.selectionStart;
 			doc.selectedString_(snip);
 			if(i.notNil) {
-				// Yeah. Seriously. I actually have to do this. SMH
-				if(doc.respondsTo(\selectRange)) {
-					doc.selectRange(pos + i, 0)
+				if(j.notNil) {
+					j = j - i;  // reuse j now for selection size
 				} {
-					doc.select(pos + i, 0)
+					j = 0;
+				};
+				// Yeah. Seriously. I actually have to do this:
+				// Document and TextView use different method names
+				if(doc.respondsTo(\selectRange)) {
+					doc.selectRange(pos + i, j)
+				} {
+					doc.select(pos + i, j)
 				}
 			};
 		} {
