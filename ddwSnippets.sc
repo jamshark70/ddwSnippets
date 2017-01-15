@@ -91,6 +91,15 @@ DDWSnippets {
 	*makeGui { |doc(Document.current)|
 		var window, textField, listView, str;
 		var allKeys = snips.keys.as(Array).sort, keys, current;
+		var update = { |view|
+			var i;
+			str = view.string;
+			current = keys[listView.value ?? { 0 }];
+			keys = allKeys.select { |item| item[.. str.size-1] == str };
+			i = keys.indexOfEqual(current) ?? { 0 };
+			listView.items_(keys).value_(i);
+			current = keys[i];
+		};
 
 		window = Window("Snippets",
 			Rect.aboutPoint(Window.screenBounds.center, 120, 90));
@@ -123,14 +132,13 @@ DDWSnippets {
 			var i;
 			// no ctrl, alt, super
 			// 0x001C0000: [262144, 524288, 1048576].reduce('bitOr').asHexString(8)
-			if(char.isPrint and: { modifiers bitAnd: 0x001C0000 == 0 }) {
-				str = view.string;
-				current = keys[listView.value];
-				keys = allKeys.select { |item| item[.. str.size-1] == str };
-				i = keys.indexOfEqual(current) ?? { 0 };
-				listView.items_(keys).value_(i);
-				current = keys[i];
-			};
+			case
+			{ char.isPrint and: { modifiers bitAnd: 0x001C0000 == 0 } } {
+				update.(view);
+			}
+			{ #[65288, 65535].includes(keycode) } {  // backspace, delete
+				update.(view);
+			}
 		});
 
 		keys = allKeys;
