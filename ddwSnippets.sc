@@ -1,5 +1,5 @@
 DDWSnippets {
-	classvar <snips, action;
+	classvar <snips, action, <>path, <>autoEnable = true;
 
 	*initClass {
 		snips = Dictionary.new;
@@ -10,7 +10,14 @@ DDWSnippets {
 				this.makeGui;  // changes focus to GUI window
 			}
 		};
-		AppClock.sched(1.0, { this.enable });
+		path = Platform.userConfigDir +/+ "ddwSnippets.scd";
+		AppClock.sched(1.0, {
+			// allows time for user to reset the path in startup.scd
+			this.read(path, false);
+			if(autoEnable) {
+				this.enable;
+			};
+		});
 	}
 
 	*enable {
@@ -126,5 +133,40 @@ DDWSnippets {
 
 		textField.focus(true);
 		window.front;
+	}
+
+	*write { |filePath(path), fullConfig = true|
+		var file = File(filePath, "w");
+		if(file.isOpen) {
+			protect {
+				file << "/*** DDWSnippets config ***/\n\n";
+				if(fullConfig) {
+					file << "DDWSnippets.autoEnable = " << autoEnable << ";\n\n";
+				};
+				snips.keysValuesDo { |key, str|
+					file << "DDWSnippets.put(" <<< key << ", " <<< str << ");\n\n";
+				};
+			} { file.close };
+		} {
+			"DDWSnippets could not write config file to %".format(filePath).warn;
+		};
+	}
+
+	*read { |filePath(path), warn(true)|
+		var file = File(filePath, "r"), str;
+		if(file.isOpen) {
+			protect {
+				str = file.readAllString;
+				if(str[..27] == "/*** DDWSnippets config ***/") {
+					str.interpret;
+				} {
+					"DDWSnippets found invalid config file at %".format(filePath).warn;
+				};
+			} { file.close };
+		} {
+			if(warn) {
+				"DDWSnippets could not open config file at %".format(filePath).warn;
+			}
+		};
 	}
 }
