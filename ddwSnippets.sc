@@ -1,6 +1,8 @@
 DDWSnippets {
 	classvar <snips, action, <>path, <>autoEnable = true, <>verbose = true;
 
+	*new { this.shouldNotImplement(thisMethod) }
+
 	*initClass {
 		snips = Dictionary.new;
 		Class.initClassTree(Clock);
