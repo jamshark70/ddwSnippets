@@ -79,8 +79,10 @@ DDWSnippets {
 					doc.select(pos + i, j)
 				}
 			};
+			^true
 		} {
 			"DDWSnippets: % is undefined".format(key).warn;
+			^false
 		};
 	}
 
