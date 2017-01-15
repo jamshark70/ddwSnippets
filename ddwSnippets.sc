@@ -116,6 +116,7 @@ DDWSnippets {
 				keys = allKeys.select { |item| item[.. str.size-1] == str };
 				i = keys.indexOfEqual(current) ?? { 0 };
 				listView.items_(keys).value_(i);
+				current = keys[i];
 			};
 		});
 
