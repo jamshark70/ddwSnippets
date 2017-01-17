@@ -24,7 +24,7 @@ DDWSnippets.put("synthdef", "SynthDef(\\##name##, {
 
 To use a snippet in a document, press ctrl-` (backtick). Begin typing the snippet name in the pop-up window; the list will be filtered automatically. You may also use the up and down arrow keys. Press Return to insert it, or Esc to cancel.
 
-Note::Currently, the DDWSnippets hotkey is not configurable, and it does not use Cmd on Mac.::
+Note::To configure the hotkey, use code::DDWSnippets.learn:: to type the desired hotkey. Read the link::Classes/DDWSnippets#*learn:: method documentation carefully -- there are caveats. Alternately, see link::Classes/DDWSnippets#*hotkeyCode:: and link::Classes/DDWSnippets#*hotkeyMods:: below.::
 
 Note::Currently, DDWSnippets does not check whether a selection window is already open. This case is not tested. It's strongly advised to cancel before pressing the hotkey again.::
 
@@ -70,6 +70,28 @@ returns:: A Dictionary.
 
 
 Subsection:: Configuration
+
+METHOD:: learn
+Open a GUI window, where you can type the hotkey you want to activate the snippet selector.
+
+Be aware:
+
+list::
+## Visible characters may be entered into the code document, even with Alt- or Ctrl- modifiers. DDWSnippets cannot prevent this. For instance, in Linux, Ctrl-` (the default hotkey) is invisible, but Ctrl-' isn't visible, and will type the single quote into the document.
+## SC GUI windows can receive some keystrokes that are "swallowed" by IDE code windows, e.g., the GUI can receive <Esc>, but the IDE does not pass <Esc> through to sclang. So, it's possible to choose a hotkey through the 'learn' interface that will not work when typing.
+::
+
+
+METHOD:: hotkeyCode
+An integer, corresponding to the code::keycode:: argument into key action functions. Frequently this will be an ASCII code, but not always, e.g. <Esc> translates into keycode 65307. Use at your own risk.
+
+returns:: The keycode (Integer).
+
+METHOD:: hotkeyMods
+An integer, corresponding to the code::modifiers:: argument into key action functions. See link::Reference/Modifiers::. Use at your own risk.
+
+returns:: The modifier mask (Integer).
+
 
 METHOD:: enable
 Activates DDWSnippets by adding the ctrl-` hotkey into link::Classes/Document#*globalKeyDownAction::. If link::Classes/DDWSnippets#*autoEnable:: is true, this method is called one second after class library initialization.

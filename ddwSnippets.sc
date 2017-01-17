@@ -1,5 +1,7 @@
 DDWSnippets {
-	classvar <snips, action, <>path, <>autoEnable = true, <>verbose = true;
+	classvar <snips, action, <>path,
+	<>autoEnable = true, <>verbose = true,
+	<>hotkeyCode = 96, <>hotkeyMods = 262144;
 
 	*new { this.shouldNotImplement(thisMethod) }
 
@@ -8,7 +10,7 @@ DDWSnippets {
 		Class.initClassTree(Clock);
 		Class.initClassTree(Document);
 		action = { |doc, char, modifiers, unicode, keycode|
-			if(keycode == 96 and: { modifiers bitAnd: 262144 != 0 }) {
+			if(keycode == hotkeyCode and: { modifiers bitAnd: hotkeyMods == hotkeyMods }) {
 				this.makeGui;  // changes focus to GUI window
 			}
 		};
@@ -170,6 +172,8 @@ DDWSnippets {
 				if(fullConfig) {
 					file << "DDWSnippets.autoEnable = " << autoEnable << ";\n";
 					file << "DDWSnippets.verbose = " << verbose << ";\n\n";
+					file << "DDWSnippets.hotkeyCode = " << hotkeyCode << ";\n";
+					file << "DDWSnippets.hotkeyMods = " << hotkeyMods << ";\n\n";
 				};
 				snips.keysValuesDo { |key, str|
 					file << "DDWSnippets.put(" <<< key << ", " <<< str << ");\n\n";
@@ -196,5 +200,79 @@ DDWSnippets {
 				"DDWSnippets could not open config file at %".format(filePath).warn;
 			}
 		};
+	}
+
+	// GUI to read hotkey from user
+	*learn {
+		var mods = ["Ctrl-" -> 262144, "Alt-" -> 524288, "Shift-" -> 131072],
+		modString = { |modifiers|
+			var str = String.new;
+			mods.do { |assn|
+				if(modifiers bitAnd: assn.value > 0) {
+					str = str ++ assn.key;
+				};
+			};
+			str
+		},
+		modStr, mod, code,
+		window, userView,
+		cond = Condition.new, rout;
+
+		rout = fork({
+			window = Window("Learn DDWSnippets hotkey",
+				Rect.aboutPoint(Window.screenBounds.center, 200, 60));
+			window.layout = VLayout(
+				StaticText().align_(\center)
+				.string_("Please type the hotkey combination to trigger snippets"),
+				userView = UserView();
+			);
+			userView.focus(true)
+			.keyDownAction_({ |view, char, modifiers, unicode, keycode|
+				if(keycode bitAnd: 0xFF80 != 0xFF80) {
+					mod = modifiers;
+					code = keycode;
+					cond.unhang;
+				};
+				modStr = modString.(modifiers);
+				view.refresh;
+			})
+			.keyUpAction_({ |view, char, modifiers, unicode, keycode|
+				modStr = modString.(modifiers);
+				view.refresh;
+			})
+			.drawFunc_({ |view|
+				Pen.stringCenteredIn(modStr, view.bounds.moveTo(0, 0),
+					color: QPalette.system.color(\windowText));
+			});
+			window.front;
+			cond.hang;  // wait for key
+
+			window.close;
+			window = Window("Confirm hotkey",
+				Rect.aboutPoint(Window.screenBounds.center, 200, 40));
+			window.layout = VLayout(
+				StaticText().align_(\center)
+				.string_("You pressed " ++ modStr ++ (code bitAnd: 0xFF).asAscii),
+				HLayout(
+					nil,
+					Button().states_([["Apply and Save"]]).action_({
+						hotkeyCode = code;
+						hotkeyMods = mod;
+						this.write;
+						window.close;
+					}).minWidth_("Apply and Save".bounds.width + 10),
+					Button().states_([["Apply"]]).action_({
+						hotkeyCode = code;
+						hotkeyMods = mod;
+						window.close;
+					}),
+					Button().states_([["Cancel"]]).action_({
+						window.close
+					}),
+					nil
+				)
+			);
+			window.front;
+		}, AppClock);
 	}
 }
