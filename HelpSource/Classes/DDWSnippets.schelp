@@ -77,7 +77,7 @@ Open a GUI window, where you can type the hotkey you want to activate the snippe
 Be aware:
 
 list::
-## Visible characters may be entered into the code document, even with Alt- or Ctrl- modifiers. DDWSnippets cannot prevent this. For instance, in Linux, Ctrl-` (the default hotkey) is invisible, but Ctrl-' isn't visible, and will type the single quote into the document.
+## Visible characters may be entered into the code document, even with Alt- or Ctrl- modifiers. DDWSnippets cannot prevent this. For instance, in Linux, Ctrl-` (the default hotkey) is invisible, but Ctrl-' emphasis::is:: visible, and will type the single quote into the document.
 ## SC GUI windows can receive some keystrokes that are "swallowed" by IDE code windows, e.g., the GUI can receive <Esc>, but the IDE does not pass <Esc> through to sclang. So, it's possible to choose a hotkey through the 'learn' interface that will not work when typing.
 ::
 
