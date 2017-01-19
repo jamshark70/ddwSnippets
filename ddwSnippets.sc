@@ -216,7 +216,13 @@ DDWSnippets {
 		},
 		modStr, mod, code,
 		window, userView,
-		cond = Condition.new, rout;
+		cond = Condition.new, rout,
+		// how to tell when the user hit the real key?
+		// it's different for each supported OS. yup. Qt is "cross platform"
+		done = switch(thisProcess.platform.name)
+		{ \linux } { { |char, keycode| keycode bitAnd: 0xFF80 != 0xFF80 } }
+		{ \osx } { { |char, keycode| keycode > 0 } }
+		{ \windows } { { |char, keycode| char.ascii > 0 } };
 
 		rout = fork({
 			window = Window("Learn DDWSnippets hotkey",
@@ -228,7 +234,7 @@ DDWSnippets {
 			);
 			userView.focus(true)
 			.keyDownAction_({ |view, char, modifiers, unicode, keycode|
-				if(keycode bitAnd: 0xFF80 != 0xFF80) {
+				if(done.value(char, keycode)) {  // platform-specific test, above
 					mod = modifiers;
 					code = keycode;
 					cond.unhang;
