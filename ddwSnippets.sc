@@ -101,7 +101,9 @@ DDWSnippets {
 			i = keys.indexOfEqual(current) ?? { 0 };
 			listView.items_(keys).value_(i);
 			current = keys[i];
-		};
+		},
+		post = switch(thisProcess.platform.name)  // 'switch' for future requirements
+		{ \osx } { { "osascript -e 'activate application \"SuperCollider\"'".unixCmd } };
 
 		window = Window("Snippets",
 			Rect.aboutPoint(Window.screenBounds.center, 120, 90));
@@ -113,12 +115,14 @@ DDWSnippets {
 		textField.action_({ |view|
 			this.insert(doc, current);
 			window.close;
+			if(post.notNil) { post.defer(0.05) };
 		})
 		.keyDownAction_({ |view, char, modifiers, unicode, keycode|
 			var i;
 			case
 			{ char.ascii == 27 and: { modifiers bitAnd: 0x001E0000 == 0 } } {
 				window.close;
+				if(post.notNil) { post.defer(0.05) };
 			}
 			{ #[65362, 65364].includes(keycode) } {
 				i = (listView.value + keycode - 65363).clip(0, keys.size - 1);
@@ -153,11 +157,13 @@ DDWSnippets {
 		.keyDownAction_({ |view, char, modifiers|
 			if(char.ascii == 27 and: { modifiers bitAnd: 0x001E0000 == 0 }) {
 				window.close;
+				if(post.notNil) { post.defer(0.05) };
 			};
 		})
 		.enterKeyAction_({ |view|
 			this.insert(doc, current);
 			window.close;
+			if(post.notNil) { post.defer(0.05) };
 		});
 
 		textField.focus(true);
@@ -273,7 +279,7 @@ DDWSnippets {
 						window.close;
 					}),
 					Button().states_([["Cancel"]]).action_({
-						window.close
+						window.close;
 					}),
 					nil
 				)
