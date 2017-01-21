@@ -103,7 +103,7 @@ DDWSnippets {
 			current = keys[i];
 		},
 		post = switch(thisProcess.platform.name)  // 'switch' for future requirements
-		{ \osx } { { "osascript -e 'activate application \"SuperCollider\"'".unixCmd } };
+		{ \osx } { { "osascript -e 'activate application \"SuperCollider\"'".unixCmd(postOutput: false) } };
 
 		window = Window("Snippets",
 			Rect.aboutPoint(Window.screenBounds.center, 120, 90));
