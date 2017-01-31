@@ -8,7 +8,9 @@ DDWSnippets {
 	*initClass {
 		snips = Dictionary.new;
 		Class.initClassTree(Clock);
-		Class.initClassTree(Document);
+		if('Document'.asClass.notNil) {
+			Class.initClassTree(Document);
+		};
 		action = { |doc, char, modifiers, unicode, keycode|
 			if(keycode == hotkeyCode and: { modifiers bitAnd: hotkeyMods == hotkeyMods }) {
 				this.makeGui;  // changes focus to GUI window
@@ -18,7 +20,7 @@ DDWSnippets {
 		AppClock.sched(1.0, {
 			// allows time for user to reset the path in startup.scd
 			this.read(path, false);
-			if(autoEnable) {
+			if(autoEnable and: { 'Document'.asClass.notNil }) {
 				this.enable;
 			};
 		});
