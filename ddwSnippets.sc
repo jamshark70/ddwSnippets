@@ -1,6 +1,6 @@
 DDWSnippets {
 	classvar <snips, action, <>path,
-	<>autoEnable = true, <>verbose = true,
+	<>autoEnable, <>verbose = true,
 	<>hotkeyCode = 96, <>hotkeyMods = 262144;
 
 	*new { this.shouldNotImplement(thisMethod) }
@@ -17,10 +17,14 @@ DDWSnippets {
 			}
 		};
 		path = Platform.userConfigDir +/+ "ddwSnippets.scd";
+		// allows time for user to reset the path in startup.scd
 		AppClock.sched(1.0, {
-			// allows time for user to reset the path in startup.scd
+			// user setting of autoEnable in startup.scd should override config
+			// temp will be nil if the user didn't set it
+			var temp = autoEnable;
 			this.read(path, false);
-			if(autoEnable and: { 'Document'.asClass.notNil }) {
+			if(temp.notNil) { autoEnable = temp };
+			if((autoEnable ?? { true }) and: { 'Document'.asClass.notNil }) {
 				this.enable;
 			};
 		});
