@@ -47,7 +47,7 @@ DDWSnippets {
 	}
 
 	*put { |name, value|
-		snips.put(name.asString, value.asString)
+		snips.put(name.asString, value)
 	}
 
 	*removeAt { |name|
@@ -55,11 +55,11 @@ DDWSnippets {
 	}
 
 	*at { |name|
-		^snips.at(name.asString)
+		^snips.at(name)
 	}
 
 	*insert { |doc, key|
-		var snip = snips[key], temp, i, j, pos,
+		var snip = snips[key].value(doc), temp, i, j, pos,
 		delete = { |str, i|
 			var temp;
 			if(i > 0) { temp = str[ .. i-1] } { temp = String.new };
