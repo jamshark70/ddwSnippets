@@ -109,7 +109,14 @@ DDWSnippets {
 			current = keys[i];
 		},
 		post = switch(thisProcess.platform.name)  // 'switch' for future requirements
-		{ \osx } { { "osascript -e 'activate application \"SuperCollider\"'".unixCmd(postOutput: false) } };
+		{ \osx } {
+			// no post-action if called from a TextView
+			if(doc.isKindOf(Document)) {
+				// note: resourceDir is inside the app bundle only in Mac
+				// this will not be valid for any other platform!
+				{ (Platform.resourceDir +/+ "../..").openOS }
+			};
+		};
 
 		window = Window("Snippets",
 			Rect.aboutPoint(Window.screenBounds.center, 120, 90));
