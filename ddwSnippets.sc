@@ -17,17 +17,32 @@ DDWSnippets {
 			}
 		};
 		path = Platform.userConfigDir +/+ "ddwSnippets.scd";
-		// allows time for user to reset the path in startup.scd
-		AppClock.sched(1.0, {
+		{
+			var temp = autoEnable;
+			var connected;
+			// allows time for user to reset the path in startup.scd
+			1.0.wait;
+			// sometimes ScIDE doesn't connect quickly enough
+			// so I should wait until the link is up
+			connected = block { |break|
+				10.do {
+					if(ScIDE.connected) { break.(true) };
+					0.2.wait;
+				};
+				false
+			};
+			this.read(path, false);
 			// user setting of autoEnable in startup.scd should override config
 			// temp will be nil if the user didn't set it
-			var temp = autoEnable;
-			this.read(path, false);
 			if(temp.notNil) { autoEnable = temp };
 			if((autoEnable ?? { true }) and: { 'Document'.asClass.notNil }) {
-				this.enable;
+				if(connected) {
+					this.enable;
+				} {
+					"DDWSnippets is set to autoEnable, but IDE failed to connect".warn;
+				};
 			};
-		});
+		}.fork(AppClock);
 	}
 
 	*enable {
