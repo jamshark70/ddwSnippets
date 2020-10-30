@@ -24,22 +24,28 @@ DDWSnippets {
 			1.0.wait;
 			// sometimes ScIDE doesn't connect quickly enough
 			// so I should wait until the link is up
-			connected = block { |break|
-				10.do {
-					if(ScIDE.connected) { break.(true) };
-					0.2.wait;
+			connected = if('ScIDE'.asClass.notNil) {
+				block { |break|
+					10.do {
+						if(ScIDE.connected) { break.(true) };
+						0.2.wait;
+					};
+					false
 				};
-				false
+			} {
+				\noIDE;
 			};
 			this.read(path, false);
 			// user setting of autoEnable in startup.scd should override config
 			// temp will be nil if the user didn't set it
 			if(temp.notNil) { autoEnable = temp };
 			if((autoEnable ?? { true }) and: { 'Document'.asClass.notNil }) {
-				if(connected) {
+				if(connected == true) {
 					this.enable;
 				} {
-					"DDWSnippets is set to autoEnable, but IDE failed to connect".warn;
+					if(connected == false) {
+						"DDWSnippets is set to autoEnable, but IDE failed to connect".warn;
+					};
 				};
 			};
 		}.fork(AppClock);
