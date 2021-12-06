@@ -261,7 +261,7 @@ DDWSnippets {
 		// it's different for each supported OS. yup. Qt is "cross platform"
 		done = switch(thisProcess.platform.name)
 		{ \linux } { { |char, keycode| keycode bitAnd: 0xFF80 != 0xFF80 } }
-		{ \osx } { { |char, keycode| keycode > 0 } }
+		{ \osx } { { |char, keycode| (keycode > 62) or: (keycode < 54) } }
 		{ \windows } { { |char, keycode| char.ascii > 0 } };
 
 		rout = fork({
